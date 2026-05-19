@@ -7,9 +7,9 @@ fn main() {
 
     std::io::stdin()
         .read_line(&mut user_input)
-        .expect("Error while reading user input")
-        .trim()
-        .to_string();
+        .expect("Error while reading user input");
+
+    let user_input = user_input.trim().to_string();
 
     println!("{user_input}: command not found");
 
