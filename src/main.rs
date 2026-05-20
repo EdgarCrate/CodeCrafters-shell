@@ -13,6 +13,10 @@ fn main() {
 
         let user_input = user_input.trim().to_string();
 
+        if user_input == "exit" {
+            break;
+        }
+
         println!("{user_input}: command not found");
     }
 }
