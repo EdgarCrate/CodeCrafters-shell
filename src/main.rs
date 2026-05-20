@@ -12,11 +12,16 @@ fn main() {
             .expect("Error while reading user input");
 
         let user_input = user_input.trim().to_string();
+        let splited_text: Vec<&str> = user_input.split(" ").map(|arg| arg).collect();
+        let first_argument = splited_text[0];
+        let rest_of_arguments = splited_text[1..].join(" ");
 
-        if user_input == "exit" {
+        if first_argument == "exit" {
             break;
+        } else if first_argument == "echo" {
+            println!("{rest_of_arguments}");
+        } else {
+            println!("{user_input} command not found");
         }
-
-        println!("{user_input}: command not found");
     }
 }
