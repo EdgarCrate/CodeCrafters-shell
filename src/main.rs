@@ -21,7 +21,7 @@ fn main() {
         } else if first_argument == "echo" {
             println!("{rest_of_arguments}");
         } else {
-            println!("{user_input} command not found");
+            println!("{user_input}: command not found");
         }
     }
 }
