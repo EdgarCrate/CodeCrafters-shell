@@ -50,7 +50,7 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
         let mode = metadata.permissions().mode();
         let is_executable = (mode & 0o111) != 0;
         if is_executable {
-            println!("{bin_name} is {:?}", path)
+            println!("{bin_name} is {:?}", path.path())
         }
     } else {
         println!("{bin_name}: not found");
