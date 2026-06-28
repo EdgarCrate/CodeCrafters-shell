@@ -37,6 +37,7 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
         .find(|item| {
             let dir_item = item.as_ref().unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
+            dbg!(&dir_item_name);
             dir_item_name == bin_name
         })
         .map(|item| item.unwrap());
@@ -88,7 +89,7 @@ fn main() {
                             continue;
                         }
                     };
-                    is_bin_in_path(path_value, rest_of_arguments.trim().to_string());
+                    is_bin_in_path(path_value, rest_of_arguments);
                 }
             }
             Commands::Echo => {
