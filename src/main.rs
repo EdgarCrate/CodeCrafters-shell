@@ -26,10 +26,6 @@ impl Commands {
 
     fn is_built(arg: &str) -> bool {
         Commands::from(arg).is_ok()
-        // match Commands::from(arg) {
-        //     Ok(_) => println!("{arg} {DEFAULT_MSG}"),
-        //     Err(_) => println!("{arg}: not found"),
-        // }
     }
 }
 
