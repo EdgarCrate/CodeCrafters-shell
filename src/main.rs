@@ -67,16 +67,11 @@ fn main() {
                         }
                     };
                     let list_of_paths = env::split_paths(&path_value);
-                    let path_exists = list_of_paths.into_iter().find(|path| {
-                        let content = path.read_dir().unwrap();
-                        for item in content {
-                            let c = item.unwrap().file_name();
-                            dbg!(c);
-                        }
-                        dbg!(path);
+                    dbg!(&list_of_paths);
+                    let path_exists = list_of_paths
+                        .into_iter()
+                        .find(|path| path.ends_with(&rest_of_arguments));
 
-                        path.ends_with(&rest_of_arguments)
-                    });
                     if let Some(path) = path_exists {
                         let metadata = fs::metadata(&path).expect("Error while reading metadata");
                         let mode = metadata.permissions().mode();
