@@ -1,6 +1,6 @@
 use std::io::{self, Write};
-const DEFAULT_MSG: &str = "is a shell builtin";
-
+use std::os::unix::fs::PermissionsExt;
+use std::{env, fs};
 #[derive(PartialEq, Debug)]
 enum Commands {
     TypeCommand,
@@ -8,14 +8,12 @@ enum Commands {
     Echo,
 }
 
-type Result<T> = std::result::Result<T, CommandError>;
-
 enum CommandError {
     CommandConversion(String),
 }
 
 impl Commands {
-    fn from(value: &str) -> Result<Commands> {
+    fn from(value: &str) -> Result<Commands, CommandError> {
         match value {
             "type" => Ok(Commands::TypeCommand),
             "exit" => Ok(Commands::Exit),
@@ -24,11 +22,12 @@ impl Commands {
         }
     }
 
-    fn is_built(arg: &str) {
-        match Commands::from(arg) {
-            Ok(_) => println!("{arg} {DEFAULT_MSG}"),
-            Err(_) => println!("{arg}: not found"),
-        }
+    fn is_built(arg: &str) -> bool {
+        Commands::from(arg).is_ok()
+        // match Commands::from(arg) {
+        //     Ok(_) => println!("{arg} {DEFAULT_MSG}"),
+        //     Err(_) => println!("{arg}: not found"),
+        // }
     }
 }
 
@@ -56,7 +55,34 @@ fn main() {
         };
 
         match command {
-            Commands::TypeCommand => Commands::is_built(&rest_of_arguments),
+            Commands::TypeCommand => {
+                if Commands::is_built(&rest_of_arguments) {
+                    println!("{rest_of_arguments} is a shell builtin");
+                } else {
+                    let path_value = match env::var_os("PATH") {
+                        Some(v) => v,
+                        None => {
+                            println!("No path env available");
+                            continue;
+                        }
+                    };
+                    let list_of_paths = env::split_paths(&path_value);
+                    let path_exists = list_of_paths
+                        .into_iter()
+                        .find(|path| path.ends_with(&rest_of_arguments));
+
+                    if let Some(path) = path_exists {
+                        let metadata = fs::metadata(&path).expect("Error while reading metadata");
+                        let mode = metadata.permissions().mode();
+                        let is_executable = (mode & 0o111) != 0;
+                        if is_executable {
+                            println!("{rest_of_arguments} is {:?}", path)
+                        }
+                    } else {
+                        println!("{rest_of_arguments}: not found");
+                    }
+                }
+            }
             Commands::Echo => {
                 println!("{rest_of_arguments}")
             }
