@@ -70,7 +70,11 @@ fn main() {
                     for p in list_of_paths.into_iter() {
                         let dir = fs::read_dir(p).unwrap();
                         for item in dir {
-                            dbg!(item.unwrap());
+                            let dir = item.unwrap();
+                            if dir.file_name().into_string().unwrap() == rest_of_arguments {
+                                let d = dir.file_name().into_string().unwrap();
+                                dbg!(d);
+                            }
                         }
                     }
                     // let path_exists = list_of_paths.into_iter().find(|path| {
