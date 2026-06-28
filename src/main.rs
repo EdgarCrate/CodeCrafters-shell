@@ -88,7 +88,7 @@ fn main() {
                             continue;
                         }
                     };
-                    is_bin_in_path(path_value, rest_of_arguments);
+                    is_bin_in_path(path_value, rest_of_arguments.trim().to_string());
                 }
             }
             Commands::Echo => {
