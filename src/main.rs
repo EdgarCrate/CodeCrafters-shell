@@ -35,16 +35,12 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
         for dirs in fs::read_dir(&path).unwrap() {
             let dir_item = dirs.unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
-            if dir_item_name == bin_name && dir_item.file_type().unwrap().is_file() {
+            if dir_item_name == bin_name {
                 let metadata = fs::metadata(&path).expect("Error while reading metadata");
                 let mode = metadata.permissions().mode();
                 let is_executable = (mode & 0o111) != 0;
                 if is_executable {
-                    println!(
-                        "{bin_name} is {}/{}",
-                        path.to_path_buf().to_str().unwrap(),
-                        bin_name
-                    );
+                    println!("{bin_name} is {}", path.to_path_buf().to_str().unwrap(),);
                     return;
                 } else {
                     continue;
@@ -53,27 +49,6 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
         }
     }
     println!("{bin_name}: not found");
-
-    // let found = list_of_paths
-    //     .into_iter()
-    //     .flat_map(|p| fs::read_dir(p).unwrap())
-    //     .find(|item| {
-    //         let dir_item = item.as_ref().unwrap();
-    //         let dir_item_name = dir_item.file_name().into_string().unwrap();
-    //         dir_item_name == bin_name
-    //     })
-    //     .map(|item| item.unwrap());
-
-    // if let Some(path) = found {
-    //     let metadata = fs::metadata(path.path()).expect("Error while reading metadata");
-    //     let mode = metadata.permissions().mode();
-    //     let is_executable = (mode & 0o111) != 0;
-    //     if is_executable {
-    //         println!("{bin_name} is {}", path.path().to_str().unwrap())
-    //     }
-    // } else {
-    //     println!("{bin_name}: not found");
-    // }
 }
 
 fn main() {
