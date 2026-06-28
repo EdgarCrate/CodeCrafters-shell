@@ -1,55 +1,117 @@
 use std::ffi::OsString;
+use std::fs::DirEntry;
 use std::io::{self, Write};
 use std::os::unix::fs::PermissionsExt;
+use std::path::Path;
 use std::{env, fs};
 
 #[derive(PartialEq, Debug)]
 enum Commands {
-    TypeCommand,
+    TypeCommand(Command),
     Exit,
-    Echo,
+    Echo(Command),
 }
 
 enum CommandError {
     CommandConversion(String),
 }
 
-impl Commands {
-    fn from(value: &str) -> Result<Commands, CommandError> {
-        match value {
-            "type" => Ok(Commands::TypeCommand),
-            "exit" => Ok(Commands::Exit),
-            "echo" => Ok(Commands::Echo),
-            _ => Err(CommandError::CommandConversion(value.to_string())),
-        }
-    }
+#[derive(PartialEq, Debug, Clone)]
+struct Command {
+    directive: String,
+    args: Vec<String>,
+}
 
-    fn is_built(arg: &str) -> bool {
-        Commands::from(arg).is_ok()
+impl Command {
+    fn new(directive: String, args: Vec<String>) -> Self {
+        Command { directive, args }
     }
 }
 
-fn is_bin_in_path(path_value: OsString, bin_name: String) {
-    let list_of_paths = env::split_paths(&path_value);
-    for path in list_of_paths.into_iter() {
-        for dirs in fs::read_dir(&path).unwrap() {
-            let dir_item = dirs.unwrap();
-            let dir_item_name = dir_item.file_name().into_string().unwrap();
-            if dir_item_name == bin_name {
-                let metadata = fs::metadata(dir_item.path()).expect("Error while reading metadata");
-                let mode = metadata.permissions().mode();
-                let is_executable = (mode & 0o111) != 0;
-                if is_executable {
-                    println!("{bin_name} is {}", dir_item.path().to_str().unwrap());
-                    return;
-                } else {
-                    continue;
+// Please separate responsabilities
+// Create another function that tells should that the command is valid
+// If it is valid create instance of the variant and the command.
+
+impl Commands {
+    fn from(cmd: Command) -> Result<Commands, CommandError> {
+        match cmd.directive.as_str() {
+            "type" => Ok(Commands::TypeCommand(cmd)),
+            "exit" => Ok(Commands::Exit),
+            "echo" => Ok(Commands::Echo(cmd)),
+            _ => Err(CommandError::CommandConversion(cmd.directive.clone())),
+        }
+    }
+    fn is_built(cmd: &Command) -> bool {
+        Commands::from(cmd.clone()).is_ok()
+    }
+    fn read_path() -> OsString {
+        env::var_os("PATH").expect("PATH variable is not available")
+    }
+    fn is_file_executable(path: &Path) -> bool {
+        let metadata = fs::metadata(&path).expect("Error while reading metadata");
+        let mode = metadata.permissions().mode();
+        (mode & 0o111) != 0
+    }
+    fn search_for_bin(cmd: &Command) {
+        let path_value = Commands::read_path();
+        let list_of_directories = env::split_paths(&path_value);
+        // Given then when
+        // Given a list of paths,
+        // Then check if the dir can be opened
+        // and check if one of the items in that dir matches the directive name
+        // and then check if the file has execute permissions
+        // if finded return
+        // if not continue to the next directory to be openend
+
+        for dir in list_of_directories {
+            match fs::read_dir(&dir) {
+                Ok(entries) => {
+                    let dir_items: Vec<DirEntry> = entries.filter_map(|e| e.ok()).collect();
+                    let directive_item = dir_items
+                        .into_iter()
+                        .filter_map(|item| item.file_name().into_string().ok())
+                        .find(|file_name| file_name == &cmd.directive);
+                    if let Some(executable) = directive_item {
+                        let path = format!("{}/{}", dir.to_str().unwrap(), executable);
+                        let exe_path = Path::new(&path);
+                        if Commands::is_file_executable(&exe_path) {
+                            println!("{} is {}", cmd.directive, path)
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
                 }
+                Err(e) => eprintln!("Could not read the directory {}", e),
             }
         }
+
+        println!("{}: not found", cmd.directive)
     }
-    println!("{bin_name}: not found");
 }
+
+// fn is_bin_in_path(path_value: OsString, bin_name: String) {
+//     let list_of_paths = env::split_paths(&path_value);
+//     for path in list_of_paths.into_iter() {
+//         for dirs in fs::read_dir(&path).unwrap() {
+//             let dir_item = dirs.unwrap();
+//             let dir_item_name = dir_item.file_name().into_string().unwrap();
+//             if dir_item_name == bin_name {
+//                 let metadata = fs::metadata(dir_item.path()).expect("Error while reading metadata");
+//                 let mode = metadata.permissions().mode();
+//                 let is_executable = (mode & 0o111) != 0;
+//                 if is_executable {
+//                     println!("{bin_name} is {}", dir_item.path().to_str().unwrap());
+//                     return;
+//                 } else {
+//                     continue;
+//                 }
+//             }
+//         }
+//     }
+//     println!("{bin_name}: not found");
+// }
 
 fn main() {
     loop {
@@ -62,35 +124,32 @@ fn main() {
             .expect("Error while reading user input");
 
         let user_input = user_input.trim().to_string();
-        let splited_text = user_input.split(" ").map(|arg| arg).collect::<Vec<&str>>();
-        let first_argument = splited_text[0];
-        let rest_of_arguments = splited_text[1..].join(" ");
+        let splited_text = user_input.split(" ").collect::<Vec<&str>>();
+        let first_argument = splited_text[0].to_owned();
+        let rest_of_arguments: Vec<String> = splited_text[1..]
+            .to_vec()
+            .into_iter()
+            .map(|arg| arg.to_string())
+            .collect();
 
-        let command = match Commands::from(first_argument) {
+        let cmd = Command::new(first_argument, rest_of_arguments);
+        let command = match Commands::from(cmd) {
             Ok(cmd) => cmd,
             Err(CommandError::CommandConversion(unsupported_command)) => {
                 println!("{unsupported_command}: command not found");
                 continue;
             }
         };
-
         match command {
-            Commands::TypeCommand => {
-                if Commands::is_built(&rest_of_arguments) {
-                    println!("{rest_of_arguments} is a shell builtin");
+            Commands::TypeCommand(cmd) => {
+                if Commands::is_built(&cmd) {
+                    println!("{} is a shell builtin", cmd.directive)
                 } else {
-                    let path_value = match env::var_os("PATH") {
-                        Some(v) => v,
-                        None => {
-                            println!("No path env available");
-                            continue;
-                        }
-                    };
-                    is_bin_in_path(path_value, rest_of_arguments);
+                    Commands::search_for_bin(&cmd);
                 }
             }
-            Commands::Echo => {
-                println!("{rest_of_arguments}")
+            Commands::Echo(cmd) => {
+                println!("{}", cmd.args.join(" "))
             }
             Commands::Exit => {
                 break;
