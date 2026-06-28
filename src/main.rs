@@ -67,21 +67,27 @@ fn main() {
                         }
                     };
                     let list_of_paths = env::split_paths(&path_value);
-                    let path_exists = list_of_paths.into_iter().find(|path| {
-                        dbg!(path);
-                        path.ends_with(&rest_of_arguments)
-                    });
-
-                    if let Some(path) = path_exists {
-                        let metadata = fs::metadata(&path).expect("Error while reading metadata");
-                        let mode = metadata.permissions().mode();
-                        let is_executable = (mode & 0o111) != 0;
-                        if is_executable {
-                            println!("{rest_of_arguments} is {:?}", path)
+                    for p in list_of_paths.into_iter() {
+                        let dir = fs::read_dir(p).unwrap();
+                        for item in dir {
+                            dbg!(item.unwrap());
                         }
-                    } else {
-                        println!("{rest_of_arguments}: not found");
                     }
+                    // let path_exists = list_of_paths.into_iter().find(|path| {
+                    //     dbg!(path);
+                    //     path.ends_with(&rest_of_arguments)
+                    // });
+
+                    // if let Some(path) = path_exists {
+                    //     let metadata = fs::metadata(&path).expect("Error while reading metadata");
+                    //     let mode = metadata.permissions().mode();
+                    //     let is_executable = (mode & 0o111) != 0;
+                    //     if is_executable {
+                    //         println!("{rest_of_arguments} is {:?}", path)
+                    //     }
+                    // } else {
+                    //     println!("{rest_of_arguments}: not found");
+                    // }
                 }
             }
             Commands::Echo => {
