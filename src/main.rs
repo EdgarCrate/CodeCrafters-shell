@@ -44,7 +44,8 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
                         "{bin_name} is {}/{}",
                         path.to_path_buf().to_str().unwrap(),
                         bin_name
-                    )
+                    );
+                    return;
                 } else {
                     continue;
                 }
