@@ -69,7 +69,10 @@ fn main() {
                     let list_of_paths = env::split_paths(&path_value);
                     let path_exists = list_of_paths.into_iter().find(|path| {
                         let content = path.read_dir().unwrap();
-                        dbg!(content);
+                        for item in content {
+                            let c = item.unwrap().file_name();
+                            dbg!(c);
+                        }
                         dbg!(path);
 
                         path.ends_with(&rest_of_arguments)
