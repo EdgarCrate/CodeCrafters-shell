@@ -42,7 +42,7 @@ impl Commands {
         }
     }
     fn is_built(cmd: &Command) -> bool {
-        Commands::from(cmd.clone()).is_err()
+        Commands::from(cmd.clone()).is_ok()
     }
     fn read_path() -> OsString {
         env::var_os("PATH").expect("PATH variable is not available")
