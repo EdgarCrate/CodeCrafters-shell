@@ -32,6 +32,9 @@ impl Commands {
 fn is_bin_in_path(path_value: OsString, bin_name: String) {
     let list_of_paths = env::split_paths(&path_value);
     for path in list_of_paths.into_iter() {
+        if !path.exists() {
+            continue;
+        }
         for dirs in fs::read_dir(&path).unwrap() {
             let dir_item = dirs.unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
