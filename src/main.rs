@@ -67,10 +67,10 @@ fn main() {
                         }
                     };
                     let list_of_paths = env::split_paths(&path_value);
-                    dbg!(&list_of_paths);
-                    let path_exists = list_of_paths
-                        .into_iter()
-                        .find(|path| path.ends_with(&rest_of_arguments));
+                    let path_exists = list_of_paths.into_iter().find(|path| {
+                        dbg!(path);
+                        path.ends_with(&rest_of_arguments)
+                    });
 
                     if let Some(path) = path_exists {
                         let metadata = fs::metadata(&path).expect("Error while reading metadata");
