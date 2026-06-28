@@ -32,15 +32,15 @@ impl Commands {
 fn is_bin_in_path(path_value: OsString, bin_name: String) {
     let list_of_paths = env::split_paths(&path_value);
     for path in list_of_paths.into_iter() {
-        for dirs in fs::read_dir(path).unwrap() {
+        for dirs in fs::read_dir(&path).unwrap() {
             let dir_item = dirs.unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
             if dir_item_name == bin_name {
-                let metadata = fs::metadata(dir_item.path()).expect("Error while reading metadata");
+                let metadata = fs::metadata(&path).expect("Error while reading metadata");
                 let mode = metadata.permissions().mode();
                 let is_executable = (mode & 0o111) != 0;
                 if is_executable {
-                    println!("{bin_name} is {}", dir_item.path().to_str().unwrap())
+                    println!("{bin_name} is {}", path.to_path_buf().to_str().unwrap())
                 } else {
                     continue;
                 }
