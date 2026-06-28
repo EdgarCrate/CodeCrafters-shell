@@ -31,27 +31,44 @@ impl Commands {
 
 fn is_bin_in_path(path_value: OsString, bin_name: String) {
     let list_of_paths = env::split_paths(&path_value);
-    let found = list_of_paths
-        .into_iter()
-        .flat_map(|p| fs::read_dir(p).unwrap())
-        .find(|item| {
-            let dir_item = item.as_ref().unwrap();
+    for path in list_of_paths.into_iter() {
+        for dirs in fs::read_dir(path).unwrap() {
+            let dir_item = dirs.unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
-            dbg!(&dir_item_name);
-            dir_item_name == bin_name
-        })
-        .map(|item| item.unwrap());
-
-    if let Some(path) = found {
-        let metadata = fs::metadata(path.path()).expect("Error while reading metadata");
-        let mode = metadata.permissions().mode();
-        let is_executable = (mode & 0o111) != 0;
-        if is_executable {
-            println!("{bin_name} is {}", path.path().to_str().unwrap())
+            if dir_item_name == bin_name {
+                let metadata = fs::metadata(dir_item.path()).expect("Error while reading metadata");
+                let mode = metadata.permissions().mode();
+                let is_executable = (mode & 0o111) != 0;
+                if is_executable {
+                    println!("{bin_name} is {}", dir_item.path().to_str().unwrap())
+                } else {
+                    continue;
+                }
+            }
         }
-    } else {
-        println!("{bin_name}: not found");
     }
+    println!("{bin_name}: not found");
+
+    // let found = list_of_paths
+    //     .into_iter()
+    //     .flat_map(|p| fs::read_dir(p).unwrap())
+    //     .find(|item| {
+    //         let dir_item = item.as_ref().unwrap();
+    //         let dir_item_name = dir_item.file_name().into_string().unwrap();
+    //         dir_item_name == bin_name
+    //     })
+    //     .map(|item| item.unwrap());
+
+    // if let Some(path) = found {
+    //     let metadata = fs::metadata(path.path()).expect("Error while reading metadata");
+    //     let mode = metadata.permissions().mode();
+    //     let is_executable = (mode & 0o111) != 0;
+    //     if is_executable {
+    //         println!("{bin_name} is {}", path.path().to_str().unwrap())
+    //     }
+    // } else {
+    //     println!("{bin_name}: not found");
+    // }
 }
 
 fn main() {
