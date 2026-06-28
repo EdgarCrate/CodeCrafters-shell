@@ -70,11 +70,10 @@ fn main() {
                     let path_exists = list_of_paths
                         .into_iter()
                         .find(|path| path.ends_with(&rest_of_arguments));
-
+                    dbg!("{path}");
                     if let Some(path) = path_exists {
                         let metadata = fs::metadata(&path).expect("Error while reading metadata");
                         let mode = metadata.permissions().mode();
-                        println!("{path:?}");
                         let is_executable = (mode & 0o111) != 0;
                         if is_executable {
                             println!("{rest_of_arguments} is {:?}", path)
