@@ -148,7 +148,7 @@ fn main() {
                     args: vec![],
                 };
                 if Commands::is_built(&required_command) {
-                    println!("{} is a shell builtin", cmd.directive)
+                    println!("{} is a shell builtin", required_command.directive)
                 } else {
                     Commands::search_for_bin(&cmd);
                 }
