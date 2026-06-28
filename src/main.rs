@@ -1,6 +1,8 @@
+use std::ffi::OsString;
 use std::io::{self, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::{env, fs};
+
 #[derive(PartialEq, Debug)]
 enum Commands {
     TypeCommand,
@@ -28,6 +30,30 @@ impl Commands {
         //     Ok(_) => println!("{arg} {DEFAULT_MSG}"),
         //     Err(_) => println!("{arg}: not found"),
         // }
+    }
+}
+
+fn is_bin_in_path(path_value: OsString, bin_name: String) {
+    let list_of_paths = env::split_paths(&path_value);
+    let found = list_of_paths
+        .into_iter()
+        .flat_map(|p| fs::read_dir(p).unwrap())
+        .find(|item| {
+            let dir_item = item.as_ref().unwrap();
+            let dir_item_name = dir_item.file_name().into_string().unwrap();
+            dir_item_name == bin_name
+        })
+        .map(|item| item.unwrap());
+
+    if let Some(path) = found {
+        let metadata = fs::metadata(path.path()).expect("Error while reading metadata");
+        let mode = metadata.permissions().mode();
+        let is_executable = (mode & 0o111) != 0;
+        if is_executable {
+            println!("{bin_name} is {:?}", path)
+        }
+    } else {
+        println!("{bin_name}: not found");
     }
 }
 
@@ -66,32 +92,7 @@ fn main() {
                             continue;
                         }
                     };
-                    let list_of_paths = env::split_paths(&path_value);
-                    for p in list_of_paths.into_iter() {
-                        let dir = fs::read_dir(p).unwrap();
-                        for item in dir {
-                            let dir = item.unwrap();
-                            if dir.file_name().into_string().unwrap() == rest_of_arguments {
-                                let d = dir.file_name().into_string().unwrap();
-                                dbg!(d);
-                            }
-                        }
-                    }
-                    // let path_exists = list_of_paths.into_iter().find(|path| {
-                    //     dbg!(path);
-                    //     path.ends_with(&rest_of_arguments)
-                    // });
-
-                    // if let Some(path) = path_exists {
-                    //     let metadata = fs::metadata(&path).expect("Error while reading metadata");
-                    //     let mode = metadata.permissions().mode();
-                    //     let is_executable = (mode & 0o111) != 0;
-                    //     if is_executable {
-                    //         println!("{rest_of_arguments} is {:?}", path)
-                    //     }
-                    // } else {
-                    //     println!("{rest_of_arguments}: not found");
-                    // }
+                    is_bin_in_path(path_value, rest_of_arguments);
                 }
             }
             Commands::Echo => {
