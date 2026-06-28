@@ -69,13 +69,15 @@ impl Commands {
                     let dir_items: Vec<DirEntry> = entries.filter_map(|e| e.ok()).collect();
                     let directive_item = dir_items
                         .into_iter()
-                        .filter_map(|item| item.file_name().into_string().ok())
-                        .find(|file_name| file_name == bin);
+                        .filter_map(|item| {
+                            let name = item.file_name().into_string().ok()?;
+                            Some((item, name))
+                        })
+                        .find(|(_, name)| name == bin)
+                        .map(|(item, _)| item);
                     if let Some(executable) = directive_item {
-                        let path = format!("{}/{}", dir.to_str().unwrap(), executable);
-                        let exe_path = Path::new(&path);
-                        if Commands::is_file_executable(&exe_path) {
-                            println!("{} is {}", bin, path)
+                        if Commands::is_file_executable(&executable.path()) {
+                            println!("{} is {}", bin, executable.path().to_str().unwrap())
                         } else {
                             continue;
                         }
