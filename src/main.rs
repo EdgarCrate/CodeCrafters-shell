@@ -35,7 +35,7 @@ fn is_bin_in_path(path_value: OsString, bin_name: String) {
         for dirs in fs::read_dir(&path).unwrap() {
             let dir_item = dirs.unwrap();
             let dir_item_name = dir_item.file_name().into_string().unwrap();
-            if dir_item_name == bin_name {
+            if dir_item_name == bin_name && dir_item.file_type().unwrap().is_file() {
                 let metadata = fs::metadata(&path).expect("Error while reading metadata");
                 let mode = metadata.permissions().mode();
                 let is_executable = (mode & 0o111) != 0;
