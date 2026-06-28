@@ -88,7 +88,7 @@ impl Commands {
             }
         }
 
-        println!("{}: not found", cmd.directive)
+        println!("{}: not found", bin)
     }
 }
 
