@@ -62,7 +62,7 @@ impl Commands {
         // and then check if the file has execute permissions
         // if finded return
         // if not continue to the next directory to be openend
-
+        let bin = &cmd.args[0];
         for dir in list_of_directories {
             match fs::read_dir(&dir) {
                 Ok(entries) => {
@@ -70,7 +70,7 @@ impl Commands {
                     let directive_item = dir_items
                         .into_iter()
                         .filter_map(|item| item.file_name().into_string().ok())
-                        .find(|file_name| file_name == &cmd.directive);
+                        .find(|file_name| file_name == bin);
                     if let Some(executable) = directive_item {
                         let path = format!("{}/{}", dir.to_str().unwrap(), executable);
                         let exe_path = Path::new(&path);
