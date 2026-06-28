@@ -143,7 +143,11 @@ fn main() {
         };
         match command {
             Commands::TypeCommand(cmd) => {
-                if Commands::is_built(&cmd) {
+                let required_command = Command {
+                    directive: cmd.args[0].to_owned(),
+                    args: vec![],
+                };
+                if Commands::is_built(&required_command) {
                     println!("{} is a shell builtin", cmd.directive)
                 } else {
                     Commands::search_for_bin(&cmd);
