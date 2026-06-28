@@ -75,7 +75,7 @@ impl Commands {
                         let path = format!("{}/{}", dir.to_str().unwrap(), executable);
                         let exe_path = Path::new(&path);
                         if Commands::is_file_executable(&exe_path) {
-                            println!("{} is {}", cmd.directive, path)
+                            println!("{} is {}", bin, path)
                         } else {
                             continue;
                         }
