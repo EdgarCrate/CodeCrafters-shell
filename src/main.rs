@@ -26,26 +26,24 @@ fn main() {
             Ok(cmd) => cmd,
             Err(CommandError::CommandConversion(unsupported_command)) => {
                 if Commands::search_for_bin(&cmd.directive) {
-                        // If the custom binary is found then we run it as an external process
-                        let output = std::process::Command::new(&command.directive)
-                            .args(&command.args)
-                            .output()
-                            .expect("Fail to execute program");
+                    // If the custom binary is found then we run it as an external process
+                    let output = std::process::Command::new(&cmd.directive)
+                        .args(&cmd.args)
+                        .output()
+                        .expect("Fail to execute program");
 
-                        if output.status.success() {
-                            let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
-                            println!("{stdout}");
-                        } else {
-                            let stderr = String::from_utf8(output.stderr).expect("Invalid UTF-8");
-                            println!("{stderr}");
-                        }
+                    if output.status.success() {
+                        let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+                        println!("{stdout}");
+                    } else {
+                        let stderr = String::from_utf8(output.stderr).expect("Invalid UTF-8");
+                        println!("{stderr}");
+                    }
 
-                        continue;
-                    }
-                    else {
-                        println!("{unsupported_command}: command not found");
-                        continue;
-                    }
+                    continue;
+                } else {
+                    println!("{unsupported_command}: command not found");
+                    continue;
                 }
             }
         };
