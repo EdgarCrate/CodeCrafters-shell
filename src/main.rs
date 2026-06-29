@@ -56,7 +56,7 @@ fn main() {
                     args: vec![],
                 };
                 if Commands::is_builtin(&required_command) {
-                    println!("{} is a shell builtin", required_command.directive)
+                    print!("{} is a shell builtin", required_command.directive)
                 } else {
                     if let Some(v) = Commands::search_for_bin(&required_command.directive) {
                         print!("{v}");
@@ -64,7 +64,7 @@ fn main() {
                 }
             }
             Commands::Echo(cmd) => {
-                println!("{}", cmd.args.join(" "))
+                print!("{}", cmd.args.join(" "))
             }
             Commands::Exit => {
                 break;
