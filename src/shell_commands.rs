@@ -48,6 +48,7 @@ impl Commands {
     }
     pub fn search_for_bin(cmd: &Command) -> Option<Command> {
         let path_value = Commands::read_path();
+        dbg!(&path_value);
         let list_of_directories = env::split_paths(&path_value);
         let bin = &cmd.args[0];
         for dir in list_of_directories {
@@ -58,7 +59,6 @@ impl Commands {
                         .into_iter()
                         .map(|item| {
                             let name = item.file_name().display().to_string();
-                            dbg!(&name);
                             return (item, name);
                         })
                         .find(|(_, name)| name == bin)
