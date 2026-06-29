@@ -1,6 +1,5 @@
 use std::ffi::OsString;
 use std::fs::DirEntry;
-use std::num::NonZeroU8;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::{env, fs};

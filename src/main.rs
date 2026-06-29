@@ -35,10 +35,10 @@ fn main() {
                         .expect("Fail to execute program");
                     if output.status.success() {
                         let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
-                        println!("{stdout}");
+                        print!("{stdout}");
                     } else {
                         let stderr = String::from_utf8(output.stderr).expect("Invalid UTF-8");
-                        println!("{stderr}");
+                        print!("{stderr}");
                     }
                     continue;
                 } else {
