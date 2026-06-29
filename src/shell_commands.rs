@@ -46,7 +46,7 @@ impl Commands {
         let mode = metadata.permissions().mode();
         (mode & 0o111) != 0
     }
-    pub fn search_for_bin(bin_name: &str, cmd: &Command) -> Option<Command> {
+    pub fn search_for_bin(bin_name: &str) -> bool {
         let path_value = Commands::read_path();
         let list_of_directories = env::split_paths(&path_value);
         for dir in list_of_directories {
@@ -63,8 +63,8 @@ impl Commands {
                         .map(|(item, _)| item);
                     if let Some(executable) = directive_item {
                         if Commands::is_file_executable(&executable.path()) {
-                            println!("{} is {}", bin_name, executable.path().display());
-                            return Some(cmd.clone());
+                            // println!("{} is {}", bin_name, executable.path().display());
+                            return true;
                         }
                     } else {
                         continue;
@@ -74,6 +74,6 @@ impl Commands {
             }
         }
         println!("{}: not found", bin_name);
-        return None;
+        return false;
     }
 }
