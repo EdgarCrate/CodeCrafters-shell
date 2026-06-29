@@ -59,7 +59,7 @@ fn main() {
                     println!("{} is a shell builtin", required_command.directive)
                 } else {
                     if let Some(v) = Commands::search_for_bin(&required_command.directive) {
-                        println!("{v}");
+                        print!("{v}");
                     }
                 }
             }
