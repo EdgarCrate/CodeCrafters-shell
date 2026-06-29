@@ -42,7 +42,7 @@ fn main() {
                     }
                     continue;
                 } else {
-                    println!("{}: not found", &cmd.directive);
+                    println!("{unsupported_command}: command not found");
                     continue;
                 }
             }
@@ -60,6 +60,8 @@ fn main() {
                 } else {
                     if let Some(v) = Commands::search_for_bin(&required_command.directive) {
                         println!("{v}");
+                    } else {
+                        println!("{}: not found", &required_command.directive);
                     }
                 }
             }

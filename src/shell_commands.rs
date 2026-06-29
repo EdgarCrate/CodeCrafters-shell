@@ -76,6 +76,7 @@ impl Commands {
                 Err(e) => eprintln!("Could not read the directory {}", e),
             }
         }
+        // println!("{}: not found", bin_name);
         return None;
     }
 }
