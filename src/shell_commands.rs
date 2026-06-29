@@ -58,6 +58,7 @@ impl Commands {
                         .into_iter()
                         .map(|item| {
                             let name = item.file_name().display().to_string();
+                            dbg!(&name);
                             return (item, name);
                         })
                         .find(|(_, name)| name == bin)
