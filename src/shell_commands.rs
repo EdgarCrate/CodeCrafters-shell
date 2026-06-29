@@ -46,10 +46,9 @@ impl Commands {
         let mode = metadata.permissions().mode();
         (mode & 0o111) != 0
     }
-    pub fn search_for_bin(cmd: &Command) -> Option<Command> {
+    pub fn search_for_bin(bin_name: &str, cmd: &Command) -> Option<Command> {
         let path_value = Commands::read_path();
         let list_of_directories = env::split_paths(&path_value);
-        let bin = &cmd.args[0];
         for dir in list_of_directories {
             match fs::read_dir(&dir) {
                 Ok(entries) => {
@@ -60,12 +59,11 @@ impl Commands {
                             let name = item.file_name().display().to_string();
                             return (item, name);
                         })
-                        .find(|(_, name)| name == bin)
+                        .find(|(_, name)| name == bin_name)
                         .map(|(item, _)| item);
                     if let Some(executable) = directive_item {
-                        dbg!(&executable);
                         if Commands::is_file_executable(&executable.path()) {
-                            println!("{} is {}", bin, executable.path().display());
+                            println!("{} is {}", bin_name, executable.path().display());
                             return Some(cmd.clone());
                         }
                     } else {
@@ -75,7 +73,7 @@ impl Commands {
                 Err(e) => eprintln!("Could not read the directory {}", e),
             }
         }
-        println!("{}: not found", bin);
+        println!("{}: not found", bin_name);
         return None;
     }
 }

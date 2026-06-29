@@ -25,7 +25,7 @@ fn main() {
         let command = match Commands::from(&cmd) {
             Ok(cmd) => cmd,
             Err(CommandError::CommandConversion(unsupported_command)) => {
-                match Commands::search_for_bin(&cmd) {
+                match Commands::search_for_bin(&cmd.directive, &cmd) {
                     Some(command) => {
                         // If the custom binary is found then we run it as an external process
                         let output = std::process::Command::new(&command.directive)
@@ -61,7 +61,7 @@ fn main() {
                 if Commands::is_builtin(&required_command) {
                     println!("{} is a shell builtin", required_command.directive)
                 } else {
-                    Commands::search_for_bin(&cmd);
+                    Commands::search_for_bin(&required_command.directive, &required_command);
                 }
             }
             Commands::Echo(cmd) => {
