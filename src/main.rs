@@ -22,7 +22,9 @@ fn main() {
             .collect();
 
         let cmd = Command::new(first_argument, rest_of_arguments);
-        let command = match Commands::from(&cmd) {
+        let command = Commands::from(&cmd);
+
+        let new_command = match command {
             Ok(cmd) => cmd,
             Err(CommandError::CommandConversion(unsupported_command)) => {
                 if Commands::search_for_bin(&cmd.directive) {
@@ -31,7 +33,6 @@ fn main() {
                         .args(&cmd.args)
                         .output()
                         .expect("Fail to execute program");
-
                     if output.status.success() {
                         let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
                         println!("{stdout}");
@@ -39,7 +40,6 @@ fn main() {
                         let stderr = String::from_utf8(output.stderr).expect("Invalid UTF-8");
                         println!("{stderr}");
                     }
-
                     continue;
                 } else {
                     println!("{unsupported_command}: command not found");
@@ -48,7 +48,7 @@ fn main() {
             }
         };
 
-        match command {
+        match new_command {
             Commands::TypeCommand(cmd) => {
                 // this is argument passed to type (i.e type cat)
                 let required_command = Command {
