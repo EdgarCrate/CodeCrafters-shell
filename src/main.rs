@@ -35,10 +35,10 @@ fn main() {
                         .expect("Fail to execute program");
                     if output.status.success() {
                         let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
-                        print!("{stdout}");
+                        println!("{stdout}");
                     } else {
                         let stderr = String::from_utf8(output.stderr).expect("Invalid UTF-8");
-                        print!("{stderr}");
+                        println!("{stderr}");
                     }
                     continue;
                 } else {
@@ -56,15 +56,15 @@ fn main() {
                     args: vec![],
                 };
                 if Commands::is_builtin(&required_command) {
-                    print!("{} is a shell builtin", required_command.directive)
+                    println!("{} is a shell builtin", required_command.directive)
                 } else {
                     if let Some(v) = Commands::search_for_bin(&required_command.directive) {
-                        print!("{v}");
+                        println!("{v}");
                     }
                 }
             }
             Commands::Echo(cmd) => {
-                print!("{}", cmd.args.join(" "))
+                println!("{}", cmd.args.join(" "))
             }
             Commands::Exit => {
                 break;
