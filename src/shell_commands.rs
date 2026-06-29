@@ -1,5 +1,6 @@
 use std::ffi::OsString;
 use std::fs::DirEntry;
+use std::num::NonZeroU8;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::{env, fs};
@@ -46,7 +47,7 @@ impl Commands {
         let mode = metadata.permissions().mode();
         (mode & 0o111) != 0
     }
-    pub fn search_for_bin(bin_name: &str) -> bool {
+    pub fn search_for_bin(bin_name: &str) -> Option<String> {
         let path_value = Commands::read_path();
         let list_of_directories = env::split_paths(&path_value);
         for dir in list_of_directories {
@@ -63,8 +64,7 @@ impl Commands {
                         .map(|(item, _)| item);
                     if let Some(executable) = directive_item {
                         if Commands::is_file_executable(&executable.path()) {
-                            println!("{} is {}", bin_name, executable.path().display());
-                            return true;
+                            format!("{} is {}", bin_name, executable.path().display());
                         }
                     } else {
                         continue;
@@ -73,7 +73,7 @@ impl Commands {
                 Err(e) => eprintln!("Could not read the directory {}", e),
             }
         }
-        println!("{}: not found", bin_name);
-        return false;
+        print!("{}: not found", bin_name);
+        return None;
     }
 }
