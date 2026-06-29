@@ -64,7 +64,11 @@ impl Commands {
                         .map(|(item, _)| item);
                     if let Some(executable) = directive_item {
                         if Commands::is_file_executable(&executable.path()) {
-                            Some(format!("{} is {}", bin_name, executable.path().display()));
+                            return Some(format!(
+                                "{} is {}",
+                                bin_name,
+                                executable.path().display()
+                            ));
                         }
                     } else {
                         continue;
