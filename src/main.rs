@@ -42,7 +42,7 @@ fn main() {
                     }
                     continue;
                 } else {
-                    println!("{unsupported_command}: command not found");
+                    println!("{}: not found", &cmd.directive);
                     continue;
                 }
             }
